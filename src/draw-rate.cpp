@@ -8,7 +8,7 @@ using namespace cocos2d;
 
 template <class T, class B>
 inline __forceinline T& from(B* base, size_t off) {
-    return *reinterpret_cast<T*>((uintptr_t)base + off);
+	return *reinterpret_cast<T*>((uintptr_t)base + off);
 }
 
 class CCDirectorVisible : public cocos2d::CCDirector {
@@ -22,8 +22,23 @@ public:
 	}
 };
 
+float get_refresh_rate() {
+	static const float refresh_rate = [] {
+		DEVMODEA device_mode;
+		memset(&device_mode, 0, sizeof(device_mode));
+		device_mode.dmSize = sizeof(device_mode);
+		device_mode.dmDriverExtra = 0;
+
+		if (EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &device_mode) == 0) {
+			return 60.f;
+		} else {
+			return static_cast<float>(device_mode.dmDisplayFrequency);
+		}
+	}();
+	return refresh_rate;
+}
+
 double frame_remainder = 0;
-int target_fps = 60;
 int frame_counter = 0;
 bool enabled = true;
 
@@ -33,8 +48,11 @@ void CCDirector_drawScene(cocos2d::CCDirector* self) {
 		return matdash::orig<&CCDirector_drawScene>(self);
 	}
 
-    const double fps_limit = 1.0 / self->getAnimationInterval();
-    // std::cout << "fps_limit " << fps_limit << std::endl;
+	// always target the refresh rate of the monitor
+	float target_fps = get_refresh_rate();
+	// std::cout << "target_fps " << target_fps << std::endl;
+
+	const double fps_limit = 1.0 / self->getAnimationInterval();
 
 	// scary floats
 	// getAnimationInterval is 1/fps bypass
@@ -68,8 +86,8 @@ void CCDirector_drawScene(cocos2d::CCDirector* self) {
 }
 
 void mod_main(HMODULE) {
-    // matdash::create_console();
-    auto cocos_handle = LoadLibraryA("libcocos2d.dll");
+	// matdash::create_console();
+	auto cocos_handle = LoadLibraryA("libcocos2d.dll");
 
 	matdash::add_hook<&CCDirector_drawScene>(GetProcAddress(cocos_handle, "?drawScene@CCDirector@cocos2d@@QAEXXZ"));
 }
