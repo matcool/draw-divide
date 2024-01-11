@@ -1,26 +1,17 @@
-# gd-mod-cpm
+# Geometry Dash Frame Dividing
 
-geometry dash mod template using [CPM.cmake](https://github.com/cpm-cmake/CPM.cmake) as a package manager
+An inverse physics bypass. If rendering is a slowdown for GD, this may allow you the benefits of increased physics ticks with less lag. By being an inverse physics bypass, you should be able to click in between drawing frames, which would not be possible with traditional physics bypasses.
 
-this also uses [mat-dash](https://github.com/matcool/mat-dash) to make hooking syntax simpler (and mod_main (very nice))
+## Usage
 
-## setup
+Open the advanced options in the graphics menu to configure the mod :-) \
+The show fps option will show the actual fps the game is running at, which differs from mega hack's since it uses a visual fps counter \
+(ps: you dont have to use the fps bypass in the menu, mega hack's works fine)
 
-clone and configure/build with cmake using x86 msvc (too lazy to copy paste the 32 bit clang setup sorry)
+The FPS of your game (chosen through bypass, with VSync, or as 60 FPS) is the rate at which update functions are called (such as physics and input).
 
-### manual setup
-if u want to do it in cmd then
-```bash
-# Configure
-cmake -B build -A win32
-# Build
-cmake --build build --config Release
-```
+For example, at 240 FPS bypass with a rate of 60, the game will appear to be drawing at 60 FPS. However, physics will be running as if you are playing at 240 FPS. This can be verified using a physics-based FPS detector (such as the one at in-game ID 66886242) and a drawing-based FPS detector (such as the one built into MegaHack).
 
-## tip
+## Credits
 
-with how cpm works if you want to avoid recloning the same repo multiple times you can look into [CPM_SOURCE_CACHE](https://github.com/cpm-cmake/CPM.cmake#cpm_source_cache)
-
-## help
-
-for more detailed info for how modding gd works i suggest checking out my [gd-mod-example](https://github.com/matcool/gd-mod-example) repo
+* blanket addict
