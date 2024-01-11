@@ -1,6 +1,6 @@
 # Geometry Dash Frame Dividing
 
-An inverse physics bypass. If rendering is a slowdown for GD, this may allow you the benefits of increased physics ticks with less lag. By being an inverse physics bypass, you should be able to click in between drawing frames, which would not be possible with traditional physics bypasses.
+An inverse physics bypass. If rendering is a slowdown for GD, this may allow you the benefits of higher FPS (such as less input latency due to faster polling) with less lag. By being an inverse physics bypass, you should be able to click in between drawing frames, which would not be possible with traditional physics bypasses.
 
 No, this mod **does not change the FPS physics run at**, it shouldn't affect physics at all (unless rob did some real nasty things in his code :P)
 
