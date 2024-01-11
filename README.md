@@ -13,5 +13,5 @@ The FPS of your game (chosen through bypass, with VSync, or as 60 FPS) is the ra
 For example, at 240 FPS bypass with a rate of 60, the game will appear to be drawing at 60 FPS. However, physics will be running as if you are playing at 240 FPS. This can be verified using a physics-based FPS detector (such as the one at in-game ID 66886242) and a drawing-based FPS detector (such as the one built into MegaHack).
 
 ## Credits
-
+* Chloe for the original implementation: [https://github.com/qimiko/draw-divide](https://github.com/qimiko/draw-divide)
 * blanket addict
