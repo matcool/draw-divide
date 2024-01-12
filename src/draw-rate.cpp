@@ -1,33 +1,57 @@
 #include <matdash.hpp>
 #include <matdash/minhook.hpp>
 #include <matdash/boilerplate.hpp>
-#include <cocos2d.h>
 
 // #include <matdash/console.hpp>
 // #include <format>
 
-using namespace cocos2d;
+namespace cocos2d {
 
-class CCDirectorVisible : public cocos2d::CCDirector {
+class CCScene {};
+
+class CCScheduler {
 public:
-	void calculateDeltaTime() {
+    virtual void update(float dt);
+};
+
+class CCDirector {
+public:
+	void calculateDeltaTime_() {
 		CCDirector::calculateDeltaTime();
 	};
 
-	void setNextScene() {
+	void setNextScene_() {
 		CCDirector::setNextScene();
 	}
+
+    unsigned int getTotalFrames(void);
+    bool isPaused(void);
+    double getAnimationInterval();
+
+	virtual CCScheduler* getScheduler();
+	CCScene* getNextScene(void);
+
+	virtual float getDeltaTime();
+	float getActualDeltaTime() const;
+
+protected:
+    void calculateDeltaTime();
+    void setNextScene(void);
 };
 
-float get_refresh_rate() {
-	static const float refresh_rate = [] {
+}
+
+using namespace cocos2d;
+
+double get_refresh_rate() {
+	static const double refresh_rate = [] {
 		DEVMODEA device_mode;
 		memset(&device_mode, 0, sizeof(device_mode));
 		device_mode.dmSize = sizeof(device_mode);
 		device_mode.dmDriverExtra = 0;
 
 		if (EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &device_mode) == 0) {
-			return 60.f;
+			return 60.0;
 		} else {
 			// TODO: see if there is a way to get the exact frequency?
 			// like 59.940hz
@@ -36,7 +60,7 @@ float get_refresh_rate() {
 			if (device_mode.dmDisplayFlags & DM_INTERLACED) {
 				freq *= 2;
 			}
-			return static_cast<float>(freq);
+			return static_cast<double>(freq);
 		}
 	}();
 	return refresh_rate;
@@ -53,39 +77,36 @@ void CCDirector_drawScene(cocos2d::CCDirector* self) {
 	}
 
 	// always target the refresh rate of the monitor
-	float target_fps = get_refresh_rate();
-	// std::cout << "target_fps " << target_fps << std::endl;
+	const double target_fps = get_refresh_rate();
 
 	const double fps_limit = 1.0 / self->getAnimationInterval();
 
-	// scary floats
-	// getAnimationInterval is 1/fps bypass
-	// 1/((1/fps bypass) * target) = fps bypass/target
-	const double thing = fps_limit / static_cast<double>(target_fps);
+	// how many times this function is called until it actually renders
+	// so for example, target_fps=60 and fps_limit=240, this variable would 4
+	// since the mod would only render every 4th frame.
+	const double frames_per_render = fps_limit / static_cast<double>(target_fps);
 
 	frame_counter++;
 
 	// run full scene draw (glClear, visit) each time the counter is full
-	if (static_cast<double>(frame_counter) + frame_remainder >= thing) {
-		frame_remainder += static_cast<double>(frame_counter) - thing;
+	if (static_cast<double>(frame_counter) + frame_remainder >= frames_per_render) {
+		// frames_per_render isnt always a whole number, so theres a bit of left over
+		frame_remainder += static_cast<double>(frame_counter) - frames_per_render;
 		frame_counter = 0;
 		return matdash::orig<&CCDirector_drawScene>(self);
 	}
 
 	// otherwise, we only run updates
 
-	// upcast to remove protection
-	auto visible_director = static_cast<CCDirectorVisible*>(self);
-
 	// this line seems to create a speedhack
-	// visible_director->calculateDeltaTime();
+	// self->calculateDeltaTime_();
 
 	if (!self->isPaused()) {
-		(self->CCDirector::getScheduler())->CCScheduler::update(self->CCDirector::getDeltaTime());
+		self->CCDirector::getScheduler()->CCScheduler::update(self->CCDirector::getDeltaTime());
 	}
 
 	if (self->getNextScene()) {
-		visible_director->setNextScene();
+		self->setNextScene_();
 	}
 }
 
