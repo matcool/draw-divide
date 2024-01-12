@@ -66,8 +66,7 @@ double get_refresh_rate() {
 	return refresh_rate;
 }
 
-double frame_remainder = 0;
-int frame_counter = 0;
+double delta_count = 0.0;
 bool enabled = true;
 
 void CCDirector_drawScene(cocos2d::CCDirector* self) {
@@ -79,20 +78,14 @@ void CCDirector_drawScene(cocos2d::CCDirector* self) {
 	// always target the refresh rate of the monitor
 	const double target_fps = get_refresh_rate();
 
-	const double fps_limit = 1.0 / self->getAnimationInterval();
+	const double target_delta = 1.0 / target_fps;
 
-	// how many times this function is called until it actually renders
-	// so for example, target_fps=60 and fps_limit=240, this variable would 4
-	// since the mod would only render every 4th frame.
-	const double frames_per_render = fps_limit / static_cast<double>(target_fps);
-
-	frame_counter++;
+	delta_count += self->getActualDeltaTime();
 
 	// run full scene draw (glClear, visit) each time the counter is full
-	if (static_cast<double>(frame_counter) + frame_remainder >= frames_per_render) {
-		// frames_per_render isnt always a whole number, so theres a bit of left over
-		frame_remainder += static_cast<double>(frame_counter) - frames_per_render;
-		frame_counter = 0;
+	if (delta_count >= target_delta) {
+		// keep left over
+		delta_count -= target_delta;
 		return matdash::orig<&CCDirector_drawScene>(self);
 	}
 
