@@ -8,11 +8,6 @@
 
 using namespace cocos2d;
 
-template <class T, class B>
-inline __forceinline T& from(B* base, size_t off) {
-	return *reinterpret_cast<T*>((uintptr_t)base + off);
-}
-
 class CCDirectorVisible : public cocos2d::CCDirector {
 public:
 	void calculateDeltaTime() {
