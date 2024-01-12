@@ -1,8 +1,10 @@
 #include <matdash.hpp>
 #include <matdash/minhook.hpp>
 #include <matdash/boilerplate.hpp>
-#include <matdash/console.hpp>
 #include <cocos2d.h>
+
+// #include <matdash/console.hpp>
+// #include <format>
 
 using namespace cocos2d;
 
@@ -32,7 +34,14 @@ float get_refresh_rate() {
 		if (EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &device_mode) == 0) {
 			return 60.f;
 		} else {
-			return static_cast<float>(device_mode.dmDisplayFrequency);
+			// TODO: see if there is a way to get the exact frequency?
+			// like 59.940hz
+			auto freq = device_mode.dmDisplayFrequency;
+			// interlaced screens actually display twice of the reported frequency
+			if (device_mode.dmDisplayFlags & DM_INTERLACED) {
+				freq *= 2;
+			}
+			return static_cast<float>(freq);
 		}
 	}();
 	return refresh_rate;
